@@ -1,2 +1,2 @@
-# API-REST---GO
+# api-rest-go
 Estudos sobre api Restful utilizando GO
