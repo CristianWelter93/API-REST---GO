@@ -5,8 +5,14 @@ import(
 	"log"
 	"net/http"
 	"github.com/gorilla/mux"
-	"encoding/json"
- )	
+	//"encoding/json"
+    //models "api-rest-go/models"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+    repository "api-rest-go/repository"
+ )
+
+ var db *gorm.DB
 
 func main(){
 	router := mux.NewRouter()
@@ -16,62 +22,19 @@ func main(){
     router.HandleFunc("/person/{id}", CreatePerson).Methods("POST")
     router.HandleFunc("/person/{id}", DeletePerson).Methods("DELETE")
 
-	people = append(people, Person{ID: "1", Firstname: "John", Lastname: "Doe", Address: &Address{City: "City X", State: "State X"}})
-	people = append(people, Person{ID: "2", Firstname: "Koko", Lastname: "Doe", Address: &Address{City: "City Z", State: "State Y"}})
-	people = append(people, Person{ID: "3", Firstname: "Francis", Lastname: "Sunday"})
+    db = repository.OpenConnection()
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
 func GetHome(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w,"Está é a home. Insira na url '/person/' e o id da pessoa que deseja realizar a operação.")
+	fmt.Fprint(w,"Está é a home. Leia o README para saber quais são as requisições possíveis.")
 }
 
-func GetPeople(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(people)
-}
+func GetPeople(w http.ResponseWriter, r *http.Request) {}
 
-func GetPerson(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-    for _, item := range people {
-        if item.ID == params["id"] {
-            json.NewEncoder(w).Encode(item)
-            return
-        }
-    }
-    json.NewEncoder(w).Encode(&Person{})
-}
+func GetPerson(w http.ResponseWriter, r *http.Request) {}
 
-func CreatePerson(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-    var person Person
-    _ = json.NewDecoder(r.Body).Decode(&person) //TODO verificar se ter como tirar esse
-    person.ID = params["id"]
-    people = append(people, person)
-    json.NewEncoder(w).Encode(people)
-}
+func CreatePerson(w http.ResponseWriter, r *http.Request) {}
 
-func DeletePerson(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-    for index, item := range people {
-        if item.ID == params["id"] {
-            people = append(people[:index], people[index+1:]...)
-            break
-        }
-	}
-	json.NewEncoder(w).Encode(people)
-}
-
-type Person struct {
-    ID        string   `json:"id,omitempty"`
-    Firstname string   `json:"firstname,omitempty"`
-    Lastname  string   `json:"lastname,omitempty"`
-    Address   *Address `json:"address,omitempty"`
-}
-
-type Address struct {
-    City  string `json:"city,omitempty"`
-    State string `json:"state,omitempty"`
-}
-
-var people []Person
+func DeletePerson(w http.ResponseWriter, r *http.Request) {}
